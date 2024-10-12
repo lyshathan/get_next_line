@@ -1,0 +1,3 @@
+Bonjour
+Ceci est le fichier test
+de ma fonction get_next_line
