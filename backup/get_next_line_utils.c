@@ -1,11 +1,11 @@
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s, char c)
+size_t	ft_strlen(const char *s)
 {
 	size_t	i;
 
 	i = 0;
-	while (s[i] && s[i] != c)
+	while (s[i])
 	{
 		i++;
 	}
@@ -20,7 +20,7 @@ char	*ft_strchr(const char *s, int c)
 	while (*temp)
 	{
 		if (*temp == (char)c)
-			return (++temp);
+			return (temp);
 		temp++;
 	}
 	if (*temp == '\0' && (char)c == '\0')
@@ -35,7 +35,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	size_t	j;
 	char	*str;
 
-	len = ft_strlen(s1, '\0') + ft_strlen(s2, '\n');
+	len = ft_strlen(s1) + ft_strlen(s2);
 	str = malloc((len + 1) * sizeof(char));
 	if (!str)
 		return (NULL);
@@ -46,7 +46,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		i++;
 	}
 	j = 0;
-	while (s2[j] && s2[j] != '\n')
+	while (s2[j])
 	{
 		str[i] = s2[j];
 		i++;
@@ -76,7 +76,7 @@ char	*ft_strdup(const char *s)
 	size_t	len;
 	char	*str;
 
-	len = ft_strlen(s, '\0');
+	len = ft_strlen(s);
 	str = malloc((len + 1) * sizeof(char));
 	if (!str)
 		return (NULL);

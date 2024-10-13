@@ -7,7 +7,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-size_t	ft_strlen(const char *s, char c);
+size_t	ft_strlen(const char *s);
 char	*ft_strchr(const char *s, int c);
 char	*ft_strjoin(char const *s1, char const *s2);
 void	ft_bzero(void *s, size_t n);
