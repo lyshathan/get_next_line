@@ -2,16 +2,10 @@
 
 void	ft_set_buffer_and_line(char **buffer, char **line)
 {
-	*buffer = malloc(BUFFER_SIZE * sizeof(char));
+	*buffer  = malloc(BUFFER_SIZE * sizeof(char));
 	if (!*buffer)
-		return ;
-	*line = NULL;
-}
-
-void	ft_copy_memory_into_line(char **memory, char **line)
-{
-	*line = ft_strdup(*memory);
-	*memory = NULL;
+		return;
+	*line = "";
 }
 
 char	*ft_in_case_memory(char **memory, char **line, int red)
@@ -41,35 +35,42 @@ void	ft_in_case_no_memory(char **line, char **buffer, char **memory)
 {
 	char	*temp;
 
+//	*memory = ft_strdup(ft_strchr(*buffer, '\n'));
 	temp = ft_strjoin(*line, *buffer);
 	*line = strdup(temp);
 	free(temp);
 }
 
+
 char	*get_next_line(int fd)
 {
 	static int	red;
-	char		*buffer;
-	char		*line;
+	char 		*buffer;
+	char 		*line;
 	static char	*memory;
 
 	ft_set_buffer_and_line(&buffer, &line);
-	if (memory && (ft_strchr(memory, '\n') || red != BUFFER_SIZE))
-		return (ft_in_case_memory(&memory, &line, red));
+//	printf("memory = #%s#\n\n", memory);
 	if (memory)
-		ft_copy_memory_into_line(&memory, &line);
+	{
+		if (ft_strchr(memory, '\n') || red != BUFFER_SIZE)
+			return (ft_in_case_memory(&memory, &line, red));
+		line = ft_strdup(memory);
+		memory = NULL;
+	}
 	red = BUFFER_SIZE;
 	while (red == BUFFER_SIZE)
 	{
 		ft_bzero(buffer, BUFFER_SIZE);
 		red = read(fd, buffer, BUFFER_SIZE);
+//		printf("red = %d | buffer = %s\n\n", red, buffer);
 		if (red == 0 && !line)
 			return (NULL);
 		ft_in_case_no_memory(&line, &buffer, &memory);
 		if (ft_strchr(buffer, '\n'))
 		{
 			memory = ft_strdup(ft_strchr(buffer, '\n'));
-			break ;
+			break;
 		}
 	}
 	return (line);

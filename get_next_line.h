@@ -12,5 +12,6 @@ char	*ft_strchr(const char *s, int c);
 char	*ft_strjoin(char const *s1, char const *s2);
 void	ft_bzero(void *s, size_t n);
 char	*ft_strdup(const char *s);
+char	*get_next_line(int fd);
 
 #endif

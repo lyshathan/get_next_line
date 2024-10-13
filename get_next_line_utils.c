@@ -4,6 +4,8 @@ size_t	ft_strlen(const char *s, char c)
 {
 	size_t	i;
 
+	if (!s)
+		return (0);
 	i = 0;
 	while (s[i] && s[i] != c)
 	{
@@ -16,6 +18,8 @@ char	*ft_strchr(const char *s, int c)
 {
 	char	*temp;
 
+	if (!s)
+		return (NULL);
 	temp = (char *)s;
 	while (*temp)
 	{
@@ -40,7 +44,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	if (!str)
 		return (NULL);
 	i = 0;
-	while (s1[i])
+	while (s1 && s1[i])
 	{
 		str[i] = s1[i];
 		i++;
@@ -89,3 +93,12 @@ char	*ft_strdup(const char *s)
 	str[i] = '\0';
 	return (str);
 }
+
+/* int main()
+{
+	char *line;
+	line = NULL;
+
+	printf("%s", ft_strjoin(line, "hello"));
+	return 0;
+} */
