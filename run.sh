@@ -1,5 +1,5 @@
 #!/bin/bash
 
-gcc *.c -D BUFFER_SIZE=10000000
+gcc -Wall -Wextra -Werror *.c -D BUFFER_SIZE=0
 ./a.out > test
 cat test

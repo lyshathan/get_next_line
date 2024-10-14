@@ -11,6 +11,8 @@ size_t	ft_strlen(const char *s, char c)
 	{
 		i++;
 	}
+	if (s[i] == '\n')
+		i++;
 	return (i);
 }
 
@@ -56,7 +58,9 @@ char	*ft_strjoin(char const *s1, char const *s2)
 		i++;
 		j++;
 	}
-	str[i] = '\0';
+	if (s2[j] == '\n')
+		str[i] = '\n';
+	str[++i] = '\0';
 	return (str);
 }
 
@@ -99,6 +103,16 @@ char	*ft_strdup(const char *s)
 	char *line;
 	line = NULL;
 
-	printf("%s", ft_strjoin(line, "hello"));
+	char *str = ft_strjoin("12345", "67\n89\n");
+	printf("%s\n", str);
+
+	int i = 0;
+	while (str[i])
+	{
+		write (1, &str[i], 1);
+		write (1, "\n", 1);
+		i++;
+	}
+	printf("printed i = %d", i);
 	return 0;
 } */

@@ -21,7 +21,7 @@ char	*ft_in_case_memory(char **memory, char **line, int red)
 	if (ft_strchr(*memory, '\n'))
 	{
 		temp = ft_strjoin(*line, *memory);
-		*line = strdup(temp);
+		*line = ft_strdup(temp);
 		temp = ft_strdup(ft_strchr(*memory, '\n'));
 		*memory = ft_strdup(temp);
 		free(temp);
@@ -37,12 +37,12 @@ char	*ft_in_case_memory(char **memory, char **line, int red)
 	return (*line);
 }
 
-void	ft_in_case_no_memory(char **line, char **buffer, char **memory)
+void	ft_in_case_no_memory(char **line, char **buffer)
 {
 	char	*temp;
 
 	temp = ft_strjoin(*line, *buffer);
-	*line = strdup(temp);
+	*line = ft_strdup(temp);
 	free(temp);
 }
 
@@ -65,7 +65,7 @@ char	*get_next_line(int fd)
 		red = read(fd, buffer, BUFFER_SIZE);
 		if (red == 0 && !line)
 			return (NULL);
-		ft_in_case_no_memory(&line, &buffer, &memory);
+		ft_in_case_no_memory(&line, &buffer);
 		if (ft_strchr(buffer, '\n'))
 		{
 			memory = ft_strdup(ft_strchr(buffer, '\n'));
@@ -75,76 +75,41 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-int	main(int arc, char **arv)
+int	main()
 {
-	(void)arc;
-	char *filename = "text.txt";
-	char *line;
-	int fd = open(filename, O_RDWR);
+	//////////////////////////////////////////////////////////////
+	//TEST WITH A GIVEN FILE
+	char	*filename = "text.txt";
+	char	*line;
+	int		fd = open(filename, O_RDWR);
 
 	if(fd == -1)
 		exit(1);
 
-	int i = 0;
-
-	printf("Line n°%d\n", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d\n", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d\n", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d\n", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d\n", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d\n", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
+	int i = 1;
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("line n°%d = '%s'", i, line);
+		i++;
+	}
 
 	close(fd);
 
-    return 0;
+	return (0);
+
+	//////////////////////////////////////////////////////////////
+	//TEST WITH STANDARD INPUT
+
+	/* char *line;
+
+    printf("Entrez plusieurs lignes (Ctrl+D pour finir) :\n");
+
+    while ((line = get_next_line(STDIN_FILENO)) != NULL) {
+        printf("%s", line);
+        free(line);
+    }
+
+    printf("Fin de la saisie.\n");
+
+    return 0; */
 }
-
-/* 	if (memory)
-	{
-		if (ft_strchr(memory, '\n'))
-		{
-			temp = ft_strjoin(line, memory);
-			line = strdup(temp);
-			temp = ft_strdup(ft_strchr(memory, '\n'));
-			memory = ft_strdup(temp);
-			free(temp);
-			return (line);
-		}
-		if (red != BUFFER_SIZE)
-		{
-			line = ft_strdup(memory);
-			free (memory);
-			memory = NULL;
-			return (line);
-		}
-		line = ft_strdup(memory);
-		memory = NULL;
-	} */
-
-	/* while (bytes_read == BUFFER_SIZE)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		red = bytes_read;
-		if (red == 0)
-			return (NULL);
-		if (ft_strchr(buffer, '\n'))
-		{
-			memory = ft_strdup(ft_strchr(buffer, '\n'));
-			temp = ft_strjoin(line, buffer);
-			line = strdup(temp);
-			free(temp);
-			break;
-		}
-		else
-		{
-			temp = ft_strjoin(line, buffer);
-			line = strdup(temp);
-		}
-		ft_bzero(buffer, BUFFER_SIZE);
-	} */
