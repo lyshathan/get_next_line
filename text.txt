@@ -1,5 +1,0 @@
-First line.
-Second line is here.
-And third here.
-
-Last line of the file.
