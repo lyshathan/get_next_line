@@ -13,6 +13,6 @@ void	copy_until(char **dest, char *src, char stop);
 void	join_until(char **dest, char *src, char stop);
 char	*ft_strchr(char *s, char c);
 void	safe_free(char **tobefreed);
-void	clear_string(char	*string);
+void	clear_string(char	**string);
 
 # endif

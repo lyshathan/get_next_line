@@ -3,18 +3,22 @@
 void	safe_free(char **tobefreed)
 {
 	if (*tobefreed && **tobefreed)
+	{
 		free(*tobefreed);
-	*tobefreed = NULL;
+		*tobefreed = NULL;
+	}
 }
 
-void	set_buffer_and_line(char **buffer, char **line)
+void	set_buffer_and_line(char **buffer, char **line, char **memory)
 {
 	*buffer = NULL;
 	*buffer = malloc(BUFFER_SIZE * sizeof(char));
 	if (!*buffer)
 		return ;
-	clear_string(*buffer);
+	clear_string(buffer);
 	*line = NULL;
+	if (!*memory || !**memory)
+		*memory = NULL;
 }
 
 char	*in_case_memory(char **memory, char **line, char **buffer, size_t red)
@@ -32,11 +36,22 @@ char	*in_case_memory(char **memory, char **line, char **buffer, size_t red)
 			if (red != BUFFER_SIZE)
 			{
 				free(*buffer);
-				clear_string(*memory);
+				clear_string(memory);
 				return (*line);
 			}
 		}
+		safe_free(line);
 		return (NULL);
+}
+
+void	f_check(char **line, char **buffer, char **memory)
+{
+	join_until(line, *buffer, '\n');
+	//printf("line = #%s#\n", line);
+	printf("leaks check memory = #%s#\n", *memory);
+	//free(memory);
+	copy_until(memory, ft_strchr(*buffer, '\n'), '\0');
+	//printf("memory = #%s#\n", memory);
 }
 
 char	*get_next_line(int fd)
@@ -46,11 +61,11 @@ char	*get_next_line(int fd)
 	char			*line;
 	char			*buffer;
 
-	//printf("> Initial memory = #%s#\n", memory);
+	printf("> Initial memory = #%s#\n", memory);
 	//printf("> Red = %zu\n", red);
 	if (fd < 0)
 		return (NULL);
-	set_buffer_and_line(&buffer, &line);
+	set_buffer_and_line(&buffer, &line, &memory);
 	//printf("> Line = #%s#\n", line);
 	//printf("> Buffer = #%s#\n", buffer);
 	if (memory && *memory)
@@ -78,12 +93,12 @@ char	*get_next_line(int fd)
 		}
 		if (ft_strchr(buffer, '\n'))
 		{
-			join_until(&line, buffer, '\n');
+			f_check(&line, &buffer, &memory);
+			/* join_until(&line, buffer, '\n');
 			//printf("line = #%s#\n", line);
-			////printf("\n\nhere\n\n");
 			memory = NULL;
 			copy_until(&memory, ft_strchr(buffer, '\n'), '\0');
-			//printf("memory = #%s#\n", memory);
+			//printf("memory = #%s#\n", memory); */
 			break;
 		}
 		else
@@ -93,38 +108,38 @@ char	*get_next_line(int fd)
 			if (red != BUFFER_SIZE)
 			{
 				free(buffer);
-				clear_string(memory);
+				clear_string(&memory);
 				return (line);
 			}
 		}
-		clear_string(buffer);
+		clear_string(&buffer);
 	}
-	//printf("Left memory = #%s#\n", memory);
+	printf("Left memory = #%s#\n", memory);
 	free(buffer);
 	return (line);
 }
 
-// int main(int arc, char ** arv)
-// {
-// 	(void)arc;
-// 	char	*filename = arv[1];
-// 	char	*line;
-// 	int fd = open(filename, O_RDWR);
+int main(int arc, char ** arv)
+{
+	(void)arc;
+	char	*filename = arv[1];
+	char	*line;
+	int fd = open(filename, O_RDWR);
 
-// 	if(fd == -1)
-// 		exit(1);
+	if(fd == -1)
+		exit(1);
 
-// 	while ((line = get_next_line(fd)) != NULL)
-// 	{
-// 		printf("line ------> " );
-// 		printf("#%s#\n\n", line);
-// 		safe_free(&line);
-// 	}
-// 	line = get_next_line(fd);
-// 	printf("line ------> " );
-// 	printf("#%s#\n\n", line);
-// 	safe_free(&line);
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("line ------> " );
+		printf("#%s#\n\n", line);
+		safe_free(&line);
+	}
+	// line = get_next_line(fd);
+	// printf("line ------> " );
+	// printf("#%s#\n\n", line);
+	// safe_free(&line);
 
-// 	close(fd);
-// 	return (0);
-// }
+	close(fd);
+	return (0);
+}
