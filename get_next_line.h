@@ -1,18 +1,18 @@
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GNL_H
+# define GNL_H
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <string.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <string.h>
 
-size_t	ft_strlen(const char *s, char c);
-char	*ft_strchr(const char *s, int c);
-void	ft_strjoin(char **s1, char *s2);
-void	ft_bzero(void *s, size_t n);
-void	ft_strdup(char **s, char *str);
-//char	*ft_strdup(char *s);
 char	*get_next_line(int fd);
+size_t	ft_strlen_until(const char *s, char stop);
+void	copy_until(char **dest, char *src, char stop);
+void	join_until(char **dest, char *src, char stop);
+char	*ft_strchr(char *s, char c);
+void	safe_free(char **tobefreed);
+void	clear_string(char	*string);
 
-#endif
+# endif

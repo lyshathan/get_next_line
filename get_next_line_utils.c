@@ -1,117 +1,116 @@
 #include "get_next_line.h"
 
-size_t	ft_strlen(const char *s, char c)
+size_t	ft_strlen_until(const char *s, char stop)
 {
 	size_t	i;
 
-	if (!s)
-		return (0);
 	i = 0;
-	while (s[i] && s[i] != c)
+	while (s[i] && s[i] != stop)
 	{
 		i++;
 	}
-	if (s[i] == '\n')
-		i++;
 	return (i);
 }
 
-char	*ft_strchr(const char *s, int c)
+void	copy_until(char **dest, char *src, char stop)
 {
+	size_t	len;
+	size_t	i;
+
+	if (!src || !*src)
+		return ;
+	safe_free(dest);
+	len = ft_strlen_until(src, stop);
+	if (src[len] == '\n')
+		len++;
+	*dest = malloc((len + 1) * sizeof(char));
+	if (!*dest)
+		return;
+	i = 0;
+	while (src[i] && src[i] != stop)
+	{
+		(*dest)[i] = src[i];
+		i++;
+	}
+	if (src[i] == '\n')
+		(*dest)[i++] = '\n';
+	(*dest)[i] = '\0';
+}
+
+void	join_until(char **dest, char *src, char stop)
+{
+	size_t	i;
+	size_t	k;
 	char	*temp;
 
-	if (!s)
-		return (NULL);
-	temp = (char *)s;
-	while (*temp)
+	if (!src || !*src)
+		return ;
+	if (!*dest || !**dest)
 	{
-		if (*temp == (char)c)
-			return (++temp);
-		temp++;
+		copy_until(dest, src, stop);
+		return ;
 	}
-	if (*temp == '\0' && (char)c == '\0')
-		return (temp);
+	k = ft_strlen_until(*dest, '\0') + ft_strlen_until(src, stop);
+	if (src[ft_strlen_until(src, stop)] == '\n')
+		k++;
+	temp = NULL;
+	copy_until(&temp, *dest, '\0');
+	safe_free(dest);
+	*dest = malloc((k + 1) * sizeof(char));
+	if (!*dest)
+		return ;
+	i = 0;
+	while(temp[i])
+	{
+		(*dest)[i] = temp[i];
+		i++;
+	}
+	safe_free(&temp);
+	k = 0;
+	while (src[k] && src[k] != stop)
+		(*dest)[i++] = src[k++];
+	if (src[k] == '\n')
+		(*dest)[i++] = '\n';
+	(*dest)[i] = '\0';
+}
+
+char	*ft_strchr(char *s, char c)
+{
+	while (*s)
+	{
+		if (*s == c)
+			return (++s);
+		s++;
+	}
+	if (*s == '\0' && c == '\0')
+		return (s);
 	return (NULL);
 }
 
-void 	ft_strjoin(char **s1, char *s2) //free and change s1, doesn't impact s2
+void	clear_string(char	*string)
 {
 	size_t	i;
-	size_t	j;
-	char	*temp;
 
-	temp = malloc(sizeof(char));
-	if (!temp)
-		return ;
-	ft_strdup(&temp, *s1);
-	if (*s1)
-		free(*s1);
-	*s1 = malloc(((ft_strlen(temp, '\0') + ft_strlen(s2, '\n')) + 1) * sizeof(char));
-	if (!*s1)
+	if (!string)
 		return ;
 	i = 0;
-	while (temp && temp[i])
+	while (string[i])
 	{
-		(*s1)[i] = temp[i];
+		string[i] = '\0';
 		i++;
 	}
-	free(temp);
-	j = 0;
-	while (s2[j] && s2[j] != '\n')
-	{
-		(*s1)[i] = s2[j];
-		i++;
-		j++;
-	}
-	if (s2[j] == '\n')
-		(*s1)[i] = '\n';
-	(*s1)[++i] = '\0';
+	return;
 }
 
-void	ft_bzero(void *s, size_t n)
-{
-	size_t			i;
-	unsigned char	*str;
+// int	main()
+// {
+// 	char *line = strdup("bonjour");
+// 	char *buffer = strdup("hel\nlo.");
 
-	str = (unsigned char *)s;
-	i = 0;
-	while (i < n)
-	{
-		str[i] = '\0';
-		i++;
-	}
-}
+// 	join_until(&line, buffer, '\n');
+// 	printf("line = #%s#\n", line);
+// 	safe_free(&line);
+// 	safe_free(&buffer);
 
-void	ft_strdup(char **s, char *str) //free and change s, doesn't impact str
-{
-	size_t	i;
-	size_t	len;
-
-	if (!str)
-		return;
-	len = ft_strlen(str, '\0');
-	if (*s)
-		free(*s);
-	*s = malloc((len + 1) * sizeof(char));
-	if (!*s)
-		return;
-	i = 0;
-	while (str[i])
-	{
-		(*s)[i] = str[i];
-		i++;
-	}
-	(*s)[i] = '\0';
-	//free (str);
-}
-
-/* int main()
-{
-	char *copy = strdup("12345");
-	char *line = strdup("helloooooo");
-
-	printf("%s\n", line);
-	ft_strdup(&line, copy);
-	printf("%s\n", line);
-	return 0;
-} */
+// 	return (0);
+// }

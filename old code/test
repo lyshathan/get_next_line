@@ -1,0 +1,27 @@
+first memory =	#(null)#
+line =		##
+memory =	#(null)#
+
+initial red =	43
+
+==CASE NO MEMORY==
+red =		43
+buffer =	#First line.
+Second one.
+Third.
+.
+
+And last #
+line =		#First line.
+#
+==Found newspace in buffer==
+memory =	#Second one.
+Third.
+.
+
+And last #
+
+-->line 1 : First line.
+
+++++++++++++++++++
+
