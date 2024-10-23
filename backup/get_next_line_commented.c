@@ -1,109 +1,187 @@
 #include "get_next_line.h"
 
-char	*get_next_line(int fd)
+void	safe_free(char **tobefreed)
 {
-	int	i;
-	int	bytes_read;
-	static int red;
-	char *buffer;
-	char *line;
-	char *copy;
-	static char	*memory;
-
-	buffer  = malloc(BUFFER_SIZE * sizeof(char));
-	if (!buffer)
-		return NULL;
-
-	
-	bytes_read = BUFFER_SIZE;
-
-	line = "";
-
-	if (memory)
+	if (*tobefreed && **tobefreed)
 	{
-		//if '\n' in memory -> line = line + part of memory | memory = rest of memory
-		if (ft_strchr(memory, '\n'))
+		free(*tobefreed);
+		*tobefreed = NULL;
+	}
+}
+
+void	set_buffer_and_line(char **buffer, char **line)
+{
+	*buffer = NULL;
+	*buffer = malloc(BUFFER_SIZE * sizeof(char));
+	if (!*buffer)
+		return ;
+	clear_string(buffer);
+	*line = NULL;
+}
+
+char	*in_case_memory(char **memory, char **line, char **buffer, size_t red)
+{
+	char	*temp;
+
+	temp = NULL;
+	if (ft_strchr(*memory, '\n'))
 		{
-			copy = ft_strjoin(line, memory);
-			line = strdup(copy);
-			copy = ft_strdup(ft_strchr(memory, '\n'));
-			memory = ft_strdup(copy);
-			free(copy);
-			return (line);
+			copy_until(line, *memory, '\n');
+			printf("line = #%s#\n", *line);
+			copy_until(&temp, ft_strchr(*memory, '\n'), '\0');
+			printf("temp = #%s#\n", temp);
+			copy_until(memory, temp, '\0');
+			safe_free(&temp);
+
+			//*memory = ft_strchr(*memory, '\n');
+			free(*buffer);
+			return (*line);
 		}
-		//if everything has been red -> line = memory
+	else
+	{
+		copy_until(line, *memory, '\n');
 		if (red != BUFFER_SIZE)
 		{
-			line = ft_strdup(memory);
-			free (memory);
+		free(*buffer);
+			safe_free(memory);
+			return (*line);
+		}
+	}
+	safe_free(line);
+	return (NULL);
+}
+
+void	f_check(char **line, char **buffer, char **memory)
+{
+	join_until(line, *buffer, '\n');
+	////printf("line = #%s#\n", line);
+	//printf("leaks check memory = #%s#\n", *memory);
+	//clear_string(memory);
+	copy_until(memory, ft_strchr(*buffer, '\n'), '\0');
+	////printf("memory = #%s#\n", memory);
+}
+
+char	*get_next_line(int fd)
+{
+	static char		*memory;
+	static size_t	red;
+	char			*line;
+	char			*buffer;
+
+	// printf("> Initial memory = #%s#\n", memory);
+	// printf("> Red = %zu\n", red);
+	if (fd < 0)
+		return (NULL);
+	set_buffer_and_line(&buffer, &line);
+	// printf("> Line = #%s#\n", line);
+	// printf("> Buffer = #%s#\n", buffer);
+	if (memory && *memory)
+	{
+		// if (ft_strchr(memory, '\n'))
+		// {
+		// 	printf("== NEWLINE IN MEMORY==\n\n");
+		// 	return (in_case_memory(&memory, &line, &buffer, red));
+		// }
+		// copy_until(&line, memory, '\n');
+
+		if (ft_strchr(memory, '\n') && *ft_strchr(memory, '\n'))
+		{
+			// printf("==NEWSPACE FOUND IN MEMORY\n");
+			char	*temp = NULL;
+			copy_until(&line, memory, '\n');
+			// printf("line = #%s#\n", line);
+			// printf("ft_strchr = #%s#\n", ft_strchr(memory, '\n'));
+			copy_until(&temp, ft_strchr(memory, '\n'), '\0');
+			// printf("temp = #%s#\n", temp);
+			copy_until(&memory, temp, '\0');
+			// printf("memory = #%s#\n", memory);
+			safe_free(&temp);
+			free(buffer);
 			return (line);
 		}
-		//if not EOF && memory does not contain '\n' -> line = memory
-		line = ft_strdup(memory);
-		free (memory);
-	}
-
-	//while not OEF -> read the next BUFFER_SIZE char
-	while (bytes_read == BUFFER_SIZE)
-	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		red = bytes_read;
-		//if evrything has been read && the is no more memory -> return NULL
-		if (red == 0)
-			return (NULL);
-
-		//if buffer contains '\n' 
-		//		-> line = concat of existing line + buffet until '\n'
-		//		-> memory keeps the end of the buffer
-		if (ft_strchr(buffer, '\n'))
-		{
-			copy = ft_strjoin(line, buffer);
-			line = strdup(copy);
-			memory = ft_strdup(ft_strchr(buffer, '\n'));
-			free(copy);
-			break;
-		}
-
-		//if buffer does not contain '\n'
-		//		--> line = concat of existing line + buffet until '\n'
 		else
 		{
-			copy = ft_strjoin(line, buffer);
-			line = strdup(copy);
-			free(copy);
+			copy_until(&line, memory, '\n');
+			if (red != BUFFER_SIZE)
+			{
+				free(buffer);
+				safe_free(&memory);
+				return (line);
+			}
 		}
-		//reset buffer
-		ft_bzero(buffer, BUFFER_SIZE);
+		//printf("line = #%s#\n", line);
 	}
+	////printf("> Line after 1st part = #%s#\n", line);
+	red = BUFFER_SIZE;
+	while (red == BUFFER_SIZE)
+	{
+		red = read(fd, buffer, BUFFER_SIZE);
+		////printf("red = %zu\n", red);
+		////printf("buffer = #%s#\n", buffer);
+		////printf("line = #%s#\n", line);
+		if (red <= 0 && !line)
+		{
+			free(buffer);
+			safe_free(&line);
+			return (NULL);
+		}
+		if (ft_strchr(buffer, '\n'))
+		{
+			f_check(&line, &buffer, &memory);
+			/* join_until(&line, buffer, '\n');
+			////printf("line = #%s#\n", line);
+			memory = NULL;
+			copy_until(&memory, ft_strchr(buffer, '\n'), '\0');
+			////printf("memory = #%s#\n", memory); */
+			break;
+		}
+		else
+		{
+			join_until(&line, buffer, '\0');
+			////printf("line = #%s#\n", line);
+			if (red != BUFFER_SIZE)
+			{
+				free(buffer);
+				clear_string(&memory);
+				return (line);
+			}
+		}
+		clear_string(&buffer);
+	}
+	//printf("Left memory = #%s#\n", memory);
+	free(buffer);
 	return (line);
 }
 
-int	main(int arc, char **arv)
+int main(int arc, char ** arv)
 {
 	(void)arc;
-	char *filename = "text.txt";
-	char *line;
+	char	*filename = arv[1];
+	char	*line;
 	int fd = open(filename, O_RDWR);
 
 	if(fd == -1)
 		exit(1);
 
-	int i = 0;
+	int i = 1;
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		printf("line %d ------> ", i);
+		printf("#%s#\n\n", line);
+		safe_free(&line);
+		i++;
+	}
+	line = get_next_line(fd);
+	printf("line %d ------> ", i);
+	printf("#%s#\n\n", line);
+	safe_free(&line);
 
-	printf("Line n°%d =", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d =", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d =", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d =", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d =", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
-	printf("Line n°%d =", ++i);
-	printf("'%s'\n\n", get_next_line(fd));
+	line = get_next_line(fd);
+	printf("line %d ------> ", i);
+	printf("#%s#\n\n", line);
+	safe_free(&line);
 
 	close(fd);
-
-    return 0;
+	return (0);
 }
+

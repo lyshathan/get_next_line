@@ -1,5 +1,0 @@
-First line.
-Seconde one.
-And third.
-
-This is the last line.
